@@ -33,6 +33,137 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+extern USBD_HandleTypeDef hUsbDeviceFS;
+
+#define rowNum 6    // 行 IN 0 to 5
+#define colNum 10   // 列 OUT 0 to 9
+
+// 行　上から下へ
+const uint16_t rowPin[rowNum] =
+{
+        IN_0_Pin, IN_1_Pin, IN_2_Pin, IN_3_Pin, IN_4_Pin, IN_5_Pin
+};
+// 列　左から右へ
+const uint16_t colPin[colNum] =
+{
+        OUT_0_Pin, OUT_1_Pin, OUT_2_Pin, OUT_3_Pin, OUT_4_Pin, OUT_5_Pin, OUT_6_Pin, OUT_7_Pin, OUT_8_Pin, OUT_9_Pin
+};
+
+// モディファイアキー
+#define MOD_CTRL_L  0x01
+#define MOD_SHIFT_L 0x02
+#define MOD_ALT_L   0x04
+#define MOD_META_L  0x08
+#define MOD_CTRL_R  0x10
+#define MOD_SHIFT_R 0x20
+#define MOD_ALT_R   0x40
+#define MOD_META_R  0x80
+
+// 通常キー
+#define KEY_NULL    0x00    // Reserved (no event indicated)
+
+#define KEY_RIGHT   0x4F
+#define KEY_LEFT    0x50
+#define KEY_DOWN    0x51
+#define KEY_UP      0x52
+
+#define KEY_A       0x04
+#define KEY_B       0x05
+#define KEY_C       0x06
+#define KEY_D       0x07
+#define KEY_E       0x08
+#define KEY_F       0x09
+#define KEY_G       0x0A
+#define KEY_H       0x0B
+#define KEY_I       0x0C
+#define KEY_J       0x0D
+#define KEY_K       0x0E
+#define KEY_L       0x0F
+#define KEY_M       0x10
+#define KEY_N       0x11
+#define KEY_O       0x12
+#define KEY_P       0x13
+#define KEY_Q       0x14
+#define KEY_R       0x15
+#define KEY_S       0x16
+#define KEY_T       0x17
+#define KEY_U       0x18
+#define KEY_V       0x19
+#define KEY_W       0x1A
+#define KEY_X       0x1B
+#define KEY_Y       0x1C
+#define KEY_Z       0x1D
+
+#define KEY_1       0x1E
+#define KEY_2       0x1F
+#define KEY_3       0x20
+#define KEY_4       0x21
+#define KEY_5       0x22
+#define KEY_6       0x23
+#define KEY_7       0x24
+#define KEY_8       0x25
+#define KEY_9       0x26
+#define KEY_0       0x27
+
+#define KEY_RETURN  0x28
+#define KEY_ESCAPE  0x29
+#define KEY_DELETE  0x2A
+#define KEY_TAB     0x2B
+#define KEY_SPACE   0x2C
+
+#define KEY_LTHAN   0x36    // less than '<'
+#define KEY_GTHAN   0x37    // greater than '>'
+
+#define KEY_MENU    0x76
+#define KEY_ZENKAKUHANKAKU  0x94 // Keyboard LANG5
+
+// 通常キー 注意：ASCIIではない USB HID Usage Tables.pdf
+const uint8_t normalKeyMap[rowNum][colNum] =
+{
+        { KEY_LEFT, KEY_DOWN, KEY_RIGHT, KEY_UP, KEY_NULL, KEY_ESCAPE, KEY_NULL, KEY_A, KEY_B, KEY_C },
+        { KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0 },
+        { KEY_Q, KEY_D, KEY_R, KEY_W, KEY_B, KEY_J, KEY_F, KEY_U, KEY_P, KEY_DELETE },
+        { KEY_A, KEY_S, KEY_H, KEY_T, KEY_G, KEY_Y, KEY_N, KEY_E, KEY_O, KEY_I },
+        { KEY_Z, KEY_X, KEY_M, KEY_C, KEY_V, KEY_K, KEY_L, KEY_LTHAN, KEY_GTHAN, KEY_RETURN },
+        { MOD_SHIFT_L, KEY_TAB, MOD_ALT_L, MOD_CTRL_L, KEY_SPACE, KEY_SPACE, MOD_CTRL_R, MOD_ALT_R, KEY_ZENKAKUHANKAKU, MOD_SHIFT_R }
+};
+
+// キーの状態
+uint8_t keyState[rowNum][colNum];
+
+// 電気的な状態（回路 に 1:High がデフォルト
+uint8_t currentState[rowNum][colNum];   // センシング結果 1度目
+uint8_t temporaryState[rowNum][colNum]; // センシング結果 2度目
+uint8_t beforeState[rowNum][colNum];    // 前回のセンシング結果
+
+// テキトーディレイ
+void delay_us(uint32_t i) {
+    while (i > 0) {
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP"); asm("NOP");
+        i--;
+    }
+}
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -92,12 +223,101 @@ int main(void)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
+  // USB-HID
+  // - - - - - - - - - - - - - - - - - - - - - - - -
+  struct keyboardHID_t
+  {
+      // このサイズは必須らしい?
+      uint8_t id;
+      uint8_t modifires;
+      uint8_t key1;
+      uint8_t key2;
+      uint8_t key3;
+  };
+
+  struct keyboardHID_t keyboardHID = { 1, 0, 0, 0, 0 };
+
+  // Setup
+  // - - - - - - - - - - - - - - - - - - - - - - - -
+  uint32_t i = 0;
+  uint32_t j = 0;
+
+  // row はインプット。通常HIGH／スイッチ押下でLOW、が想定される
+
+  // col をデフォルトHighに
+  for (i = 0; i < colNum; i++) {
+      HAL_GPIO_WritePin(GPIOA, colPin[i], 1);
+  }
+
+  // バッファに初期状態を入力
+  for (i = 0; i < rowNum; i++) {
+      for (j = 0; j < colNum; j++) {
+          keyState[i][j] = 0;
+          currentState[i][j] = 1;
+          beforeState[i][j] = 1;
+      }
+  }
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+      // 電気的走査
+      // - - - - - - - - - - -
+      // 行を回す
+      for (i = 0; i < rowNum; i++) {
+          // カラムを回す
+          for (j = 0; j < colNum; j++) {
+              HAL_GPIO_WritePin(GPIOA, colPin[j], 0); // Lowでチェック
+              delay_us(1);
+              // row[i]の値をバッファに格納
+              currentState[i][j] = HAL_GPIO_ReadPin(GPIOB, rowPin[i]);
+              // チャタリング防止
+              delay_us(1);
+              // 再度チェック
+              if (currentState[i][j] == HAL_GPIO_ReadPin(GPIOB, rowPin[i])) {
+                  // かつ前回と変化があったかどうか
+                  if (currentState[i][j] != beforeState[i][j]) {
+                      // 押した or 放した
+                      keyState[i][j] = 1 - currentState[i][j]; // 分かりやすさのために反転させて保存
+                      // 格納
+                      beforeState[i][j] = currentState[i][j];
+                      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin); // Lチカデバッグ
+                  }
+              }
+              HAL_GPIO_WritePin(GPIOA, colPin[j], 1); // �?フォル Highに戻す
+          }
+      }
+
+      // データ走査
+      // 一旦初期化
+      keyboardHID.modifires = 0x00;
+      keyboardHID.key1 = 0x00;
+
+      // データの走査開始
+      for (i = 0; i < rowNum; i++) {
+          for (j = 0; j < colNum; j++) {
+              if (keyState[i][j] == 1) {
+                  // アクティブなキー
+                  if (i == 5) {
+                      if (j < 5 || 5 < j) {
+                          keyboardHID.modifires = normalKeyMap[i][j]; // モディファイアキー押下
+                      } else {
+                          keyboardHID.key1 = normalKeyMap[i][j]; // 通常キー押下
+                      }
+                  } else {
+                      keyboardHID.key1 = normalKeyMap[i][j]; // 通常キー押下
+                  }
+              }
+          }
+      }
+
+      // 結果の送信(モディファイアとの関連性があるので、全体を検索したのちに送信すべき）（←？）
+      USBD_HID_SendReport(&hUsbDeviceFS, &keyboardHID, sizeof(struct keyboardHID_t));
+      delay_us(10);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
