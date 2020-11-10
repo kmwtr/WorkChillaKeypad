@@ -112,6 +112,8 @@ const uint16_t colPin[colNum] =
 #define KEY_TAB     0x2B
 #define KEY_SPACE   0x2C
 
+#define KEY_BACKSP  0xBB
+
 #define KEY_LTHAN   0x36    // less than '<'
 #define KEY_GTHAN   0x37    // greater than '>'
 
@@ -119,13 +121,23 @@ const uint16_t colPin[colNum] =
 #define KEY_ZENKAKUHANKAKU  0x94 // Keyboard LANG5
 
 // 通常キー 注意：ASCIIではない USB HID Usage Tables.pdf
-const uint8_t normalKeyMap[rowNum][colNum] =
+const uint8_t workmanKeyMap[rowNum][colNum] =
 {
-        { KEY_LEFT, KEY_DOWN, KEY_RIGHT, KEY_UP, KEY_NULL, KEY_ESCAPE, KEY_NULL, KEY_A, KEY_B, KEY_C },
+        { KEY_LEFT, KEY_DOWN, KEY_RIGHT, KEY_UP, KEY_NULL, KEY_ESCAPE, KEY_MENU, KEY_RETURN, KEY_DELETE, KEY_BACKSP },
         { KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0 },
         { KEY_Q, KEY_D, KEY_R, KEY_W, KEY_B, KEY_J, KEY_F, KEY_U, KEY_P, KEY_DELETE },
         { KEY_A, KEY_S, KEY_H, KEY_T, KEY_G, KEY_Y, KEY_N, KEY_E, KEY_O, KEY_I },
         { KEY_Z, KEY_X, KEY_M, KEY_C, KEY_V, KEY_K, KEY_L, KEY_LTHAN, KEY_GTHAN, KEY_RETURN },
+        { MOD_SHIFT_L, KEY_TAB, MOD_ALT_L, MOD_CTRL_L, KEY_SPACE, KEY_SPACE, MOD_CTRL_R, MOD_ALT_R, KEY_ZENKAKUHANKAKU, MOD_SHIFT_R }
+};
+
+const uint8_t qwertyKeyMap[rowNum][colNum] =
+{
+        { KEY_LEFT, KEY_DOWN, KEY_RIGHT, KEY_UP, KEY_NULL, KEY_ESCAPE, KEY_MENU, KEY_RETURN, KEY_DELETE, KEY_BACKSP },
+        { KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0 },
+        { KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_DELETE },
+        { KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L, KEY_P },
+        { KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_LTHAN, KEY_GTHAN, KEY_RETURN },
         { MOD_SHIFT_L, KEY_TAB, MOD_ALT_L, MOD_CTRL_L, KEY_SPACE, KEY_SPACE, MOD_CTRL_R, MOD_ALT_R, KEY_ZENKAKUHANKAKU, MOD_SHIFT_R }
 };
 
@@ -136,6 +148,9 @@ uint8_t keyState[rowNum][colNum];
 uint8_t currentState[rowNum][colNum];   // センシング結果 1度目
 uint8_t temporaryState[rowNum][colNum]; // センシング結果 2度目
 uint8_t beforeState[rowNum][colNum];    // 前回のセンシング結果
+
+// キーレイアウトフラグ
+uint8_t keyboardLayoutFlag = 0b00000000;    // 0 == qwerty
 
 // テキトーディレイ
 void delay_us(uint32_t i) {
@@ -302,13 +317,20 @@ int main(void)
               if (keyState[i][j] == 1) {
                   // アクティブなキー
                   if (i == 5) {
-                      if (j < 5 || 5 < j) {
-                          keyboardHID.modifires = normalKeyMap[i][j]; // モディファイアキー押下
-                      } else {
-                          keyboardHID.key1 = normalKeyMap[i][j]; // 通常キー押下
+                      if (j == 0 || j == 2 || j == 3 || j == 6 || j== 7 || j ==9) {
+                          keyboardHID.modifires = qwertyKeyMap[i][j]; // モディファイアキー押下
+                      } else if (j == 8){
+                          keyboardLayoutFlag ^= 0b00000001;
+                      }
+                      else {
+                          keyboardHID.key1 = qwertyKeyMap[i][j]; // 通常キー押下
                       }
                   } else {
-                      keyboardHID.key1 = normalKeyMap[i][j]; // 通常キー押下
+                      if (keyboardLayoutFlag == 0){
+                          keyboardHID.key1 = qwertyKeyMap[i][j]; // 通常キー押下
+                      }else{
+                          keyboardHID.key1 = workmanKeyMap[i][j]; // 通常キー押下
+                      }
                   }
               }
           }
