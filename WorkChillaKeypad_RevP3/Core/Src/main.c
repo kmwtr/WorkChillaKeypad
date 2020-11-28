@@ -112,10 +112,34 @@ const uint16_t colPin[colNum] =
 #define KEY_TAB     0x2B
 #define KEY_SPACE   0x2C
 
-#define KEY_BACKSP  0xBB
+#define KEY_MINUS       0x2D    // - _
+#define KEY_EQUAL       0x2E    // = +
+#define KEY_BRACKET_L   0x2F    // [ {
+#define KEY_BRACKET_R   0x30    // ] }
+#define KEY_BACKSLASH   0x31    // '\' |
+#define KEY_NONUS       0x32
+#define KEY_SEMICOLON   0x33    // ; :
+#define KEY_QUOTATION   0x34    // ' "
+#define KEY_GRAVE       0x35    // ` ~
+#define KEY_LTHAN       0x36    // less than '<'
+#define KEY_GTHAN       0x37    // greater than '>'
+#define KEY_SLASH       0x38    // / ?
+#define KEY_CAPS        0x39    // CapsLock
 
-#define KEY_LTHAN   0x36    // less than '<'
-#define KEY_GTHAN   0x37    // greater than '>'
+#define KEY_F1      0x3A
+#define KEY_F2      0x3B
+#define KEY_F3      0x3C
+#define KEY_F4      0x3D
+#define KEY_F5      0x3E
+#define KEY_F6      0x3F
+#define KEY_F7      0x40
+#define KEY_F8      0x41
+#define KEY_F9      0x42
+#define KEY_F10     0x43
+#define KEY_F11     0x44
+#define KEY_F12     0x45
+
+#define KEY_BACKSP  0xBB
 
 #define KEY_MENU    0x76
 #define KEY_ZENKAKUHANKAKU  0x94 // Keyboard LANG5
@@ -139,6 +163,26 @@ const uint8_t qwertyKeyMap[rowNum][colNum] =
         { KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L, KEY_P },
         { KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_LTHAN, KEY_GTHAN, KEY_RETURN },
         { MOD_SHIFT_L, KEY_TAB, MOD_ALT_L, MOD_CTRL_L, KEY_SPACE, KEY_SPACE, MOD_CTRL_R, MOD_ALT_R, KEY_ZENKAKUHANKAKU, MOD_SHIFT_R }
+};
+
+const uint8_t trrigerdKeyMap[rowNum][colNum] =
+{
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,       KEY_NULL,       KEY_ESCAPE,     KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL },
+        { KEY_F1,   KEY_F2,   KEY_F3,   KEY_F4,         KEY_F5,         KEY_F6,         KEY_F7,         KEY_F8,         KEY_F9,         KEY_F10 },
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_GRAVE,      KEY_GRAVE,      KEY_MINUS,      KEY_EQUAL,      KEY_MINUS,      KEY_EQUAL,      KEY_NULL },
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_BRACKET_L,  KEY_BRACKET_R,  KEY_BRACKET_L,  KEY_BRACKET_R,  KEY_BACKSLASH,  KEY_BACKSLASH,  KEY_NULL },
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_SEMICOLON,  KEY_SEMICOLON,  KEY_QUOTATION,  KEY_QUOTATION,  KEY_SLASH,      KEY_SLASH,      KEY_NULL },
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL }
+};
+
+const uint8_t trrigerdModMap[rowNum][colNum] =
+{
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,     KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,     KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,     MOD_SHIFT_L, KEY_NULL,  KEY_NULL,   MOD_SHIFT_L, KEY_NULL },
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,     MOD_SHIFT_L, MOD_SHIFT_L, KEY_NULL, MOD_SHIFT_L, KEY_NULL },
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, MOD_SHIFT_L,  KEY_NULL,   MOD_SHIFT_L,    KEY_NULL, MOD_SHIFT_L, KEY_NULL },
+        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL }
 };
 
 // キーの状態
@@ -317,10 +361,13 @@ int main(void)
               if (keyState[i][j] == 1) {
                   // アクティブなキー
                   if (i == 5) {
-                      if (j == 0 || j == 2 || j == 3 || j == 6 || j== 7 || j ==9) {
+                      if (j == 2 || j == 3 || j == 6 || j== 7 || j ==9) {
                           keyboardHID.modifires = qwertyKeyMap[i][j]; // モディファイアキー押下
-                      } else if (j == 8){
-                          keyboardLayoutFlag ^= 0b00000001;
+                      }else if(j == 0){
+                          // 特殊キートリガー
+                          keyboardLayoutFlag = 1;
+                      }else if (j == 8){
+                          //keyboardLayoutFlag ^= 0b00000001;
                       }
                       else {
                           keyboardHID.key1 = qwertyKeyMap[i][j]; // 通常キー押下
@@ -329,7 +376,10 @@ int main(void)
                       if (keyboardLayoutFlag == 0){
                           keyboardHID.key1 = qwertyKeyMap[i][j]; // 通常キー押下
                       }else{
-                          keyboardHID.key1 = workmanKeyMap[i][j]; // 通常キー押下
+                          keyboardHID.modifires = trrigerdModMap[i][j]; // モディファイアキー押下
+                          keyboardHID.key1 = trrigerdKeyMap[i][j]; // 通常キー押下
+                          keyboardLayoutFlag = 0;
+                          //keyboardHID.key1 = workmanKeyMap[i][j]; // Workmanキー押下
                       }
                   }
               }
