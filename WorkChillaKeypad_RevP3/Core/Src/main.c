@@ -323,6 +323,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+      // 低電力検知
+      // とりあえず。このままだとLチカデバッグに問題出る
+      if(HAL_GPIO_ReadPin(TCM809_GPIO_Port, TCM809_Pin) == 0){
+          HAL_GPIO_WritePin (LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+      }else{
+          HAL_GPIO_WritePin (LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+      }
+      //
+
       // 電気的走査
       // - - - - - - - - - - -
       // 行を回す
