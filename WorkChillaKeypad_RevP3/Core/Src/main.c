@@ -39,18 +39,18 @@ extern USBD_HandleTypeDef hUsbDeviceFS;
 #define rowNum 6    // 行 IN 0 to 5
 #define colNum 10   // 列 OUT 0 to 9
 
-// 行　上から下へ
+// 行 上から下へ.
 const uint16_t rowPin[rowNum] =
 {
         IN_0_Pin, IN_1_Pin, IN_2_Pin, IN_3_Pin, IN_4_Pin, IN_5_Pin
 };
-// 列　左から右へ
+// 列 左から右へ.
 const uint16_t colPin[colNum] =
 {
         OUT_0_Pin, OUT_1_Pin, OUT_2_Pin, OUT_3_Pin, OUT_4_Pin, OUT_5_Pin, OUT_6_Pin, OUT_7_Pin, OUT_8_Pin, OUT_9_Pin
 };
 
-// モディファイアキー
+// モディファイアキー.
 #define MOD_CTRL_L  0x01
 #define MOD_SHIFT_L 0x02
 #define MOD_ALT_L   0x04
@@ -60,13 +60,8 @@ const uint16_t colPin[colNum] =
 #define MOD_ALT_R   0x40
 #define MOD_META_R  0x80
 
-// 通常キー
+// 通常キー.
 #define KEY_NULL    0x00    // Reserved (no event indicated)
-
-#define KEY_RIGHT   0x4F
-#define KEY_LEFT    0x50
-#define KEY_DOWN    0x51
-#define KEY_UP      0x52
 
 #define KEY_A       0x04
 #define KEY_B       0x05
@@ -139,12 +134,27 @@ const uint16_t colPin[colNum] =
 #define KEY_F11     0x44
 #define KEY_F12     0x45
 
-#define KEY_BACKSP  0xBB
+#define KEY_SYSRQ   0x46 // Keyboard Print Screen
 
+#define KEY_PAGEUP      0x4B // Keyboard Page Up
+#define KEY_PAGEDOWN    0x4E // Keyboard Page Down
+
+#define KEY_RIGHT   0x4F
+#define KEY_LEFT    0x50
+#define KEY_DOWN    0x51
+#define KEY_UP      0x52
+
+#define KEY_COMPOSE 0x65 // Keyboard Application
 #define KEY_MENU    0x76
+
 #define KEY_ZENKAKUHANKAKU  0x94 // Keyboard LANG5
 
+#define KEY_BACKSP  0xBB
+
+
 // 通常キー 注意：ASCIIではない USB HID Usage Tables.pdf
+
+/*
 const uint8_t workmanKeyMap[rowNum][colNum] =
 {
         { KEY_LEFT, KEY_DOWN, KEY_RIGHT, KEY_UP, KEY_NULL, KEY_ESCAPE, KEY_MENU, KEY_RETURN, KEY_DELETE, KEY_BACKSP },
@@ -154,35 +164,42 @@ const uint8_t workmanKeyMap[rowNum][colNum] =
         { KEY_Z, KEY_X, KEY_M, KEY_C, KEY_V, KEY_K, KEY_L, KEY_LTHAN, KEY_GTHAN, KEY_RETURN },
         { MOD_SHIFT_L, KEY_TAB, MOD_ALT_L, MOD_CTRL_L, KEY_SPACE, KEY_SPACE, MOD_CTRL_R, MOD_ALT_R, KEY_ZENKAKUHANKAKU, MOD_SHIFT_R }
 };
+*/
 
 const uint8_t qwertyKeyMap[rowNum][colNum] =
 {
-        { KEY_LEFT, KEY_DOWN, KEY_RIGHT, KEY_UP, KEY_NULL, KEY_ESCAPE, KEY_MENU, KEY_RETURN, KEY_DELETE, KEY_BACKSP },
-        { KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0 },
-        { KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_DELETE },
-        { KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L, KEY_P },
-        { KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_LTHAN, KEY_GTHAN, KEY_RETURN },
-        { MOD_SHIFT_L, KEY_TAB, MOD_ALT_L, MOD_CTRL_L, KEY_SPACE, KEY_SPACE, MOD_CTRL_R, MOD_ALT_R, KEY_ZENKAKUHANKAKU, MOD_SHIFT_R }
+        { KEY_LEFT,     KEY_DOWN,   KEY_RIGHT,  KEY_UP,     KEY_SYSRQ,  KEY_ESCAPE, KEY_MENU,   KEY_RETURN, KEY_DELETE,         KEY_BACKSP      },
+
+        { KEY_1,        KEY_2,      KEY_3,      KEY_4,      KEY_5,      KEY_6,      KEY_7,      KEY_8,      KEY_9,              KEY_0           },
+        { KEY_Q,        KEY_W,      KEY_E,      KEY_R,      KEY_T,      KEY_Y,      KEY_U,      KEY_I,      KEY_O,              KEY_P           },
+        { KEY_A,        KEY_S,      KEY_D,      KEY_F,      KEY_G,      KEY_H,      KEY_J,      KEY_K,      KEY_L,              KEY_SEMICOLON   },
+        { KEY_Z,        KEY_X,      KEY_C,      KEY_V,      KEY_B,      KEY_N,      KEY_M,      KEY_LTHAN,  KEY_GTHAN,          KEY_SLASH       },
+
+        { MOD_SHIFT_L,  KEY_TAB,    MOD_ALT_L,  MOD_CTRL_L, KEY_SPACE,  KEY_SPACE,  MOD_CTRL_R, MOD_ALT_R,  KEY_ZENKAKUHANKAKU, MOD_SHIFT_R     }
 };
 
 const uint8_t trrigerdKeyMap[rowNum][colNum] =
 {
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,       KEY_NULL,       KEY_ESCAPE,     KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL },
-        { KEY_F1,   KEY_F2,   KEY_F3,   KEY_F4,         KEY_F5,         KEY_F6,         KEY_F7,         KEY_F8,         KEY_F9,         KEY_F10 },
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_GRAVE,      KEY_GRAVE,      KEY_MINUS,      KEY_EQUAL,      KEY_MINUS,      KEY_EQUAL,      KEY_NULL },
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_BRACKET_L,  KEY_BRACKET_R,  KEY_BRACKET_L,  KEY_BRACKET_R,  KEY_BACKSLASH,  KEY_BACKSLASH,  KEY_NULL },
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_SEMICOLON,  KEY_SEMICOLON,  KEY_QUOTATION,  KEY_QUOTATION,  KEY_SLASH,      KEY_SLASH,      KEY_NULL },
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL }
+        { KEY_NULL,     KEY_PAGEDOWN,   KEY_NULL,       KEY_PAGEUP,     KEY_NULL,       KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+
+        { KEY_F1,       KEY_F2,         KEY_F3,         KEY_F4,         KEY_F5,         KEY_F6,     KEY_F7,     KEY_F8,     KEY_F9,     KEY_F10  },
+        { KEY_GRAVE,    KEY_MINUS,      KEY_MINUS,      KEY_EQUAL,      KEY_EQUAL,      KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+        { KEY_GRAVE,    KEY_BRACKET_L,  KEY_BRACKET_L,  KEY_BRACKET_R,  KEY_BRACKET_R,  KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+        { KEY_NULL,     KEY_BACKSLASH,  KEY_BACKSLASH,  KEY_QUOTATION,  KEY_QUOTATION,  KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+
+        { KEY_NULL,     KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL }
 };
 
 const uint8_t trrigerdModMap[rowNum][colNum] =
 {
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,     KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,     KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,     MOD_SHIFT_L, KEY_NULL,  KEY_NULL,   MOD_SHIFT_L, KEY_NULL },
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL,     MOD_SHIFT_L, MOD_SHIFT_L, KEY_NULL, MOD_SHIFT_L, KEY_NULL },
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, MOD_SHIFT_L,  KEY_NULL,   MOD_SHIFT_L,    KEY_NULL, MOD_SHIFT_L, KEY_NULL },
-        { KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL, KEY_NULL }
+        { KEY_NULL,     KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+
+        { KEY_NULL,     KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+        { KEY_NULL,     KEY_NULL,       MOD_SHIFT_L,    KEY_NULL,       MOD_SHIFT_L,    KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+        { MOD_SHIFT_L,  KEY_NULL,       MOD_SHIFT_L,    KEY_NULL,       MOD_SHIFT_L,    KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+        { KEY_NULL,     KEY_NULL,       MOD_SHIFT_L,    KEY_NULL,       MOD_SHIFT_L,    KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL },
+
+        { KEY_NULL,     KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL,       KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL,   KEY_NULL }
 };
 
 // キーの状態
@@ -304,9 +321,12 @@ int main(void)
   // row はインプット。通常HIGH／スイッチ押下でLOW、が想定される
 
   // col をデフォルトHighに
-  for (i = 0; i < colNum; i++) {
+  for (i = 0; i < (colNum-1); i++) {
       HAL_GPIO_WritePin(GPIOA, colPin[i], 1);
   }
+  // REV.P4はGPIOをまたいでるんだった….
+  HAL_GPIO_WritePin(GPIOB, OUT_9_Pin, 1);
+
 
   // バッファに初期状態を入力
   for (i = 0; i < rowNum; i++) {
@@ -323,14 +343,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      // 低電力検知
-      // とりあえず。このままだとLチカデバッグに問題出る
-      if(HAL_GPIO_ReadPin(TCM809_GPIO_Port, TCM809_Pin) == 0){
-          HAL_GPIO_WritePin (LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-      }else{
-          HAL_GPIO_WritePin (LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-      }
-      //
+      HAL_GPIO_WritePin (LED_TX_GPIO_Port, LED_TX_Pin, GPIO_PIN_RESET);
 
       // 電気的走査
       // - - - - - - - - - - -
@@ -338,64 +351,73 @@ int main(void)
       for (i = 0; i < rowNum; i++) {
           // カラムを回す
           for (j = 0; j < colNum; j++) {
-              HAL_GPIO_WritePin(GPIOA, colPin[j], 0); // Lowでチェック
+              if(j < (colNum-1)){
+                  HAL_GPIO_WritePin(GPIOA, colPin[j], 0); // Lowでチェック.
+              }else{
+                  HAL_GPIO_WritePin(GPIOB, OUT_9_Pin, 0); // Lowでチェック.
+              }
+
               delay_us(1);
-              // row[i]の値をバッファに格納
+              // row[i]の値をバッファに格納.
               currentState[i][j] = HAL_GPIO_ReadPin(GPIOB, rowPin[i]);
-              // チャタリング防止
+              // チャタリング防止.
               delay_us(1);
-              // 再度チェック
+              // 再度チェック.
               if (currentState[i][j] == HAL_GPIO_ReadPin(GPIOB, rowPin[i])) {
-                  // かつ前回と変化があったかどうか
+                  // かつ前回と変化があったかどうか.
                   if (currentState[i][j] != beforeState[i][j]) {
-                      // 押した or 放した
-                      keyState[i][j] = 1 - currentState[i][j]; // 分かりやすさのために反転させて保存
-                      // 格納
+                      // 押した or 放した.
+                      keyState[i][j] = 1 - currentState[i][j]; // 分かりやすさのために反転させて保存.
+                      // 格納.
                       beforeState[i][j] = currentState[i][j];
-                      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin); // Lチカデバッグ
+                      HAL_GPIO_TogglePin(LED_TX_GPIO_Port, LED_TX_Pin); // Lチカデバッグ.
                   }
               }
-              HAL_GPIO_WritePin(GPIOA, colPin[j], 1); // �?フォル Highに戻す
+              // デフォルトHighに戻す.
+              if(j < (colNum-1)){
+                  HAL_GPIO_WritePin(GPIOA, colPin[j], 1);
+              }else{
+                  HAL_GPIO_WritePin(GPIOB, OUT_9_Pin, 1);
+              }
           }
       }
 
-      // データ走査
-      // 一旦初期化
+      // データ走査.
+      // 一旦初期化.
       keyboardHID.modifires = 0x00;
       keyboardHID.key1 = 0x00;
 
-      // データの走査開始
+      // データの走査開始.
       for (i = 0; i < rowNum; i++) {
           for (j = 0; j < colNum; j++) {
               if (keyState[i][j] == 1) {
-                  // アクティブなキー
+                  // アクティブなキー.
                   if (i == 5) {
-                      if (j == 2 || j == 3 || j == 6 || j== 7 || j ==9) {
-                          keyboardHID.modifires = qwertyKeyMap[i][j]; // モディファイアキー押下
-                      }else if(j == 0){
-                          // 特殊キートリガー
+                      // 最下列が押下された.
+                      if (j == 0 || j == 2 || j == 3 || j == 6 || j == 7 || j ==9) {
+                          // 0, 2, 3, 6, (7), 9, がモディファイアキー
+                          keyboardHID.modifires = qwertyKeyMap[i][j]; // モディファイアキー押下.
+                      }else if(j == 8){
+                          // 独自「装飾」キー
                           keyboardLayoutFlag = 1;
-                      }else if (j == 8){
-                          //keyboardLayoutFlag ^= 0b00000001;
-                      }
-                      else {
-                          keyboardHID.key1 = qwertyKeyMap[i][j]; // 通常キー押下
+                      }else {
+                          keyboardHID.key1 = qwertyKeyMap[i][j]; // 通常キー押下.
                       }
                   } else {
                       if (keyboardLayoutFlag == 0){
-                          keyboardHID.key1 = qwertyKeyMap[i][j]; // 通常キー押下
+                          keyboardHID.key1 = qwertyKeyMap[i][j]; // 通常キー押下.
                       }else{
-                          keyboardHID.modifires = trrigerdModMap[i][j]; // モディファイアキー押下
-                          keyboardHID.key1 = trrigerdKeyMap[i][j]; // 通常キー押下
+                          // 独自「装飾」キーが押されている.
+                          keyboardHID.modifires = trrigerdModMap[i][j]; // モディファイアキー押下.
+                          keyboardHID.key1 = trrigerdKeyMap[i][j]; // 通常キー押下.
                           keyboardLayoutFlag = 0;
-                          //keyboardHID.key1 = workmanKeyMap[i][j]; // Workmanキー押下
                       }
                   }
               }
           }
       }
 
-      // 結果の送信(モディファイアとの関連性があるので、全体を検索したのちに送信すべき）（←？）
+      // 結果の送信(モディファイアとの関連性があるので、全体を検索したのちに送信すべき）←？.
       USBD_HID_SendReport(&hUsbDeviceFS, &keyboardHID, sizeof(struct keyboardHID_t));
       delay_us(10);
 
@@ -523,32 +545,36 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, OUT_0_Pin|OUT_1_Pin|OUT_2_Pin|OUT_3_Pin
                           |OUT_4_Pin|OUT_5_Pin|OUT_6_Pin|OUT_7_Pin
-                          |OUT_8_Pin|OUT_9_Pin|LED_Pin, GPIO_PIN_RESET);
+                          |LED_TX_Pin|LED_RX_Pin|OUT_8_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(OUT_9_GPIO_Port, OUT_9_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : OUT_0_Pin OUT_1_Pin OUT_2_Pin OUT_3_Pin
                            OUT_4_Pin OUT_5_Pin OUT_6_Pin OUT_7_Pin
-                           OUT_8_Pin OUT_9_Pin LED_Pin */
+                           LED_TX_Pin LED_RX_Pin OUT_8_Pin */
   GPIO_InitStruct.Pin = OUT_0_Pin|OUT_1_Pin|OUT_2_Pin|OUT_3_Pin
                           |OUT_4_Pin|OUT_5_Pin|OUT_6_Pin|OUT_7_Pin
-                          |OUT_8_Pin|OUT_9_Pin|LED_Pin;
+                          |LED_TX_Pin|LED_RX_Pin|OUT_8_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SWICH_Pin IN_0_Pin IN_1_Pin IN_2_Pin
-                           IN_3_Pin IN_4_Pin IN_5_Pin */
-  GPIO_InitStruct.Pin = SWICH_Pin|IN_0_Pin|IN_1_Pin|IN_2_Pin
-                          |IN_3_Pin|IN_4_Pin|IN_5_Pin;
+  /*Configure GPIO pin : OUT_9_Pin */
+  GPIO_InitStruct.Pin = OUT_9_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(OUT_9_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : IN_0_Pin IN_1_Pin IN_2_Pin IN_3_Pin
+                           IN_4_Pin IN_5_Pin */
+  GPIO_InitStruct.Pin = IN_0_Pin|IN_1_Pin|IN_2_Pin|IN_3_Pin
+                          |IN_4_Pin|IN_5_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : TCM809_Pin */
-  GPIO_InitStruct.Pin = TCM809_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(TCM809_GPIO_Port, &GPIO_InitStruct);
 
 }
 
